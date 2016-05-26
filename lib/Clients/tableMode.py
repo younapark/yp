@@ -8,8 +8,6 @@ d.write('M 0')
 
 #d.write('I p')
 
-
-
 d.t_add(0,0,10,0)
 d.t_add(1,0,10,0)
 d.t_add(0,1,20,0)

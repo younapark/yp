@@ -1,10 +1,10 @@
 """
 ### BEGIN NODE INFO
 [info]
-name =  DDS9m
-version = 1.0
-description = 
-instancename = DDS9m Server
+name = DDS9m
+version = 0.0
+description =
+instancename = DDS9m
 
 [startup]
 cmdline = %PYTHON% %FILE%
@@ -15,15 +15,6 @@ message = 987654321
 timeout = 20
 ### END NODE INFO
 """
-
-
-'''
-Created on June 16, 2015
-
-@author: anthonyransford
-
-'''
-
 from common.lib.servers.serialdeviceserver import SerialDeviceServer, setting, inlineCallbacks, SerialDeviceError, SerialConnectionError, PortRegError
 from labrad.types import Error
 from twisted.internet import reactor
@@ -40,7 +31,7 @@ BAUDRATE = 19200
 
 class DDS( SerialDeviceServer ):
     name = SERVERNAME
-    regKey = 'DDS9'
+    regKey = 'DDS9m'
     port = None
     serNode = getNodeName()
     timeout = T.Value(TIMEOUT,'s')
@@ -253,7 +244,7 @@ quarter scale and N=8 for one eighth scale. All channels are scaled equally."""
     @setting(13, x = 's', returns = 's')
     def IO_update_method(self, c, x):
         """Set the I/O update pulse method. If x=a, then an I/O update is issued automatically
-at the end of each serial command (default). If x=m, then a manual I/O update
+at the end of each serial command (such as set_freq or F0 100Hz). If x=m, then a manual I/O update
 pulse is expected to be sent by a subsequent I p command. """
         setVal = 'I' + ' ' + str(x)
         self.ser.write_line(setVal)
