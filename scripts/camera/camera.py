@@ -27,22 +27,7 @@ class take_pic(object):
         self.pulser=self.cxn.pulser
         self.dv = self.cxn.data_vault
         self.pv = self.cxn.parametervault
-    def dateSeq(self):
-        self.pv.reload_parameters()
-        self.previousDate = self.pv.get_parameter('DateSeq', 'Date')
-        self.currentDate = time.strftime('%Y%m%d')
-        self.seq = self.pv.get_parameter('DateSeq', 'Seq')
 
-        if self.previousDate == self.currentDate:
-            self.pv.set_parameter('DateSeq', 'Date', ('string', self.currentDate), True)
-            print 'Same Date:', self.currentDate
-
-        else:
-            self.pv.set_parameter('DateSeq', 'Date', ('string', self.currentDate), True)
-            #  self.seq = 0
-            print 'New Date:'   , self.currentDate, self.seq
-        self.pv.save_parameters_to_registry()
-        return self.currentDate
 
     def makeDateDir(self,dirappend='',dirappend2=''):
 
@@ -83,11 +68,11 @@ class take_pic(object):
 
             camera.openCamera()
 
-            camera.AcquisitionMode = 'Continuous'
-            camera.TriggerMode = 'On'
-            camera.TriggerSource='Line2'
+            # camera.AcquisitionMode = 'Continuous'
+            # camera.TriggerMode = 'On'
+           # camera.TriggerSource='Line2'
             camera.PixelFormat='Mono8' #Mono8, Mono12, make sure to change np.arrray value np.uint8 to np.uint16
-            camera.TriggerSelector='AcquisitionStart' #FrameStart, AcquisitionStart
+           # camera.TriggerSelector='AcquisitionStart' #FrameStart, AcquisitionStart
            # camera.AcquisitionMode='SingleFrame' #Continuous, SingleFrame
            # camera.SensorShutterMode='GlobalReset'
     #        camera.TriggerActivation='AnyEdge'
@@ -102,18 +87,18 @@ class take_pic(object):
             frame2.announceFrame()
 
             camera.startCapture()
-
+            camera.runFeatureCommand('AcquisitionStart')
             frame.queueFrameCapture()
             frame2.queueFrameCapture()
 
-            frame.waitFrameCapture(3000)
+            frame.waitFrameCapture(30000)
 
             print 'frame 1 captured or timed out '
 
-            frame2.waitFrameCapture(3000)
+            frame2.waitFrameCapture(30000)
 
             print 'frame 2 captured or timed out'
-
+            camera.runFeatureCommand('AcquisitionStop')
 
             self.imgData1=frame.getBufferByteData()
             self.imgData2=frame2.getBufferByteData()
@@ -186,13 +171,13 @@ class take_pic(object):
 
            # pulser.switchAuto=('TTL2',True)
 
-            time.sleep(2)
+            time.sleep(1)
             pulser.stop_sequence()
             pulser.new_sequence()
 
             #second image not saved
-            pulser.add_ttl_pulse('TTL2',U(100,'ms'),U(50,'ms'))
-            pulser.add_ttl_pulse('TTL2',U(200,'ms'), U(50,'ms'))
+            pulser.add_ttl_pulse('TTL2',U(100,'ms'),U(100,'ms'))
+            pulser.add_ttl_pulse('TTL2',U(300,'ms'), U(100,'ms'))
             pulser.add_ttl_pulse('TTL3',U(110,'ms'), U(50,'ms'))
             pulser.add_ttl_pulse('TTL3',U(210,'ms'), U(50,'ms'))
 
@@ -204,7 +189,7 @@ class take_pic(object):
     def start_threads(self):
         t1=threading.Thread(target=self.hardwareTrigger)
         t1.start()
-        time.sleep(2)
+        time.sleep(1)
         t2=threading.Thread(target=self.sequence)
         t2.start()
         self.threads.append(t1)
@@ -220,7 +205,24 @@ class take_pic(object):
 class camera(experiment):
     name = 'Take Two Pictures'
 
+    exp_parameters = []
+    exp_parameters.append(('testTTL', 'starttime'))
+    exp_parameters.append(('testTTL', 'duration'))
+    exp_parameters.append(('testTTL','timeSep'))
 
+    @classmethod
+    def all_required_parameters(cls):
+
+        return cls.exp_parameters
+
+    def set_scannable_parameters(self):
+
+        '''
+        gets parameters, called in run so scan works
+        '''
+        self.starttime = self.p.testTTL.starttime
+        self.duration = self.p.testTTL.duration
+        self.cycles = self.p.testTTL.cycles
 
     def initialize(self, cxn, context, ident):
         self.t=take_pic()
@@ -229,7 +231,7 @@ class camera(experiment):
         self.t.start_threads()
         for t in self.t.threads: ##not sure whether they need to be joined? :')
             while t.isAlive():
-                t.join(10)
+                t.join(5)
         self.t.save_pictures()
   #      self.t.send_udp()
         self.t.save_png()

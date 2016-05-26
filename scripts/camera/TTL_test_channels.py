@@ -17,6 +17,15 @@ class TTL_test_channels(experiment):
 
         return cls.exp_parameters
 
+    def set_scannable_parameters(self):
+
+        '''
+        gets parameters, called in run so scan works
+        '''
+        self.starttime = self.p.testTTL.starttime
+        self.duration = self.p.testTTL.duration
+        self.cycles = self.p.testTTL.cycles
+
     def initialize(self, cxn, context, ident):
         from labrad.units import WithUnit as U
 
@@ -30,11 +39,7 @@ class TTL_test_channels(experiment):
         self.starttime = self.U(100, 'ms')
         self.p = self.parameters
 
-    def get_keys(self,dict):
-        self.x=[]
-        for i in range(len(dict)):
-           self.x.append(dict[i][0])
-        return self.x
+
 
     def run(self, cxn, context):
         from labrad.units import WithUnit as U
@@ -56,7 +61,11 @@ class TTL_test_channels(experiment):
 
         self.cxn.disconnect()
 
-
+    def get_keys(self, dict):
+        self.x = []
+        for i in range(len(dict)):
+            self.x.append(dict[i][0])
+        return self.x
 if __name__ == '__main__':
     cxn = labrad.connect()
     scanner = cxn.scriptscanner

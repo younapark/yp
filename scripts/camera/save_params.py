@@ -29,6 +29,23 @@ import socket
 
 class save_params(experiment):
     name = 'Save Parameters to Data Vault'
+    exp_parameters = []
+    exp_parameters.append(('testTTL', 'starttime'))
+    exp_parameters.append(('testTTL', 'duration'))
+    exp_parameters.append(('testTTL', 'timeSep'))
+    @classmethod
+    def all_required_parameters(cls):
+
+        return cls.exp_parameters
+
+    def set_scannable_parameters(self):
+
+        '''
+        gets parameters, called in run so scan works
+        '''
+        self.starttime = self.p.testTTL.starttime
+        self.duration = self.p.testTTL.duration
+        self.cycles = self.p.testTTL.cycles
 
     def makeDateDir(self, dirappend=''):
 
