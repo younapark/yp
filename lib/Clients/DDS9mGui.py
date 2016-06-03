@@ -2,7 +2,7 @@ from common.lib.clients.qtui.QCustomSpinBox import QCustomSpinBox
 from twisted.internet.defer import inlineCallbacks
 from PyQt4 import QtGui
 from PyQt4.Qt import QPushButton
-from config.dds9m_config import dds9m_config
+from yp.lib.config.dds9m_config import dds9m_config
 
 class dacclient(QtGui.QWidget):
 
@@ -33,7 +33,11 @@ class dacclient(QtGui.QWidget):
         from labrad.units import WithUnit as U
 
         self.U = U
-        self.cxn = yield connectAsync(name = "dac client")
+
+
+        self.cxn = yield connectAsync( dds9m_config.ip , password = 'lab'
+                                   )
+    #    self.cxn = yield connectAsync(name = "dac client")
         self.server = yield self.cxn.dds9m
         self.reg = yield self.cxn.registry
 
