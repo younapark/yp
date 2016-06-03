@@ -58,7 +58,7 @@ class DDS( SerialDeviceServer ):
                 print 'Check set up and restart serial server'
             else: raise
     
-    @setting(1, chan = 'i', freq = 'i', returns= 's')
+    @setting(1, chan = 'i', freq = 'v', returns= 's')
     def set_freq(self, c, chan, freq):
     ##chan = 0,1,2,3 ; freq = frequency value in MHz
         """Set Frequency of output channel in MHz to nearest 0.1Hz. Maximum setting: 171.1276031MHz. Single tone mode"""
