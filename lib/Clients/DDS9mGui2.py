@@ -1,10 +1,10 @@
+from common.lib.clients.qtui.QCustomSpinBox import QCustomSpinBox
 from twisted.internet.defer import inlineCallbacks
 from PyQt4 import QtGui
+from PyQt4.Qt import QPushButton
 from yp.lib.config.dds9m_config import dds9m_config
 
-
 class dacclient(QtGui.QWidget):
-
 
     def __init__(self, reactor, parent = None):
         """initializes the GUI creates the reactor
@@ -34,9 +34,11 @@ class dacclient(QtGui.QWidget):
 
         self.U = U
 
-        self.cxn = yield connectAsync( dds9m_config.ip , password = 'lab')
+
+        self.cxn = yield connectAsync( dds9m_config.ip , password = 'lab'
+                                   )
     #    self.cxn = yield connectAsync(name = "dac client")
-        self.server = yield self.cxn.dds9m
+        self.server = yield self.cxn.dds9m2
         self.reg = yield self.cxn.registry
 
         try:
@@ -49,11 +51,12 @@ class dacclient(QtGui.QWidget):
         self.dacinfo = dds9m_config.info
         self.initializeGUI()
 
+
     def initializeGUI(self):
 
         layout = QtGui.QGridLayout()
 
-        qBox = QtGui.QGroupBox('DDS9m')
+        qBox = QtGui.QGroupBox('DDS9m2')
         subLayout = QtGui.QGridLayout()
         qBox.setLayout(subLayout)
 

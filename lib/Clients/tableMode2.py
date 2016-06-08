@@ -1,7 +1,7 @@
 import labrad
 cxn=labrad.connect()
-d = cxn.dds9m
-print 'Table Mode'
+d = cxn.dds9m2
+print 'Table Mode2'
 d.write('I m')
 d.write('I e')
 
