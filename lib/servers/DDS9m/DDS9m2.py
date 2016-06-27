@@ -41,9 +41,9 @@ class DDS( SerialDeviceServer ):
     def initServer( self ):
         if not self.regKey or not self.serNode: raise SerialDeviceError( 'Must define regKey and serNode attributes' )
         #port = yield self.getPortFromReg( self.regKey)
-        ports = yield self.getPortFromReg( self.regKey)
-        #port = 'COM4'
-        port = ports[1]
+        #ports = yield self.getPortFromReg( self.regKey)
+        port = 'COM5'
+        #port = ports[1]
         self.count = 0
         self.lastAdded = False
         try:
@@ -354,27 +354,50 @@ than correct format, is performed.**incomplete**"""
         return readLine
 
     @setting(102, freqs='*v', returns='s')
-    def t_freqs(self, c,freqs,freqs2):
+    def t_freqs(self, c, freqs):
         """input frequencies as [10,20,30,40,50] MHz. The frequencies can be triggered by hardware triggers pin 10 and pin 14. Trigger 10 and then 14 afterwards."""
         print 'Table Mode'
-        self.write(c,'I m')
-        self.write(c,'I e')
-        self.write(c,'S')
-        self.write(c,'M 0')
+        self.write(c, 'I m')
+        self.write(c, 'I e')
+        self.write(c, 'S')
+        self.write(c, 'M 0')
 
-        for i in range(len(freqs)-1):
-            self.t_add(c,0,i,freqs[i],0)
-            self.t_add(c,1,i,freqs[i],0)
+        for i in range(len(freqs) - 1):
+            self.t_add(c, 0, i, freqs[i], 0)
+            self.t_add(c, 1, i, freqs[i], 0)
 
-        lastNum = len(freqs)-1
-        self.t_last(c,0,lastNum,freqs[lastNum],0)
-        self.t_last(c,1,lastNum,freqs[lastNum],0)
+        lastNum = len(freqs) - 1
+        self.t_last(c, 0, lastNum, freqs[lastNum], 0)
+        self.t_last(c, 1, lastNum, freqs[lastNum], 0)
 
-        self.write(c,'M t')
+        self.write(c, 'M t')
         readLine = self.ser.read_line()
         self.ser.flushinput()
         self.ser.flushoutput()
         return ''
+
+            # @setting(102, freqs='*v', returns='s')
+    # def t_freqs(self, c,freqs,freqs2):
+    #     """input frequencies as [10,20,30,40,50] MHz. The frequencies can be triggered by hardware triggers pin 10 and pin 14. Trigger 10 and then 14 afterwards."""
+    #     print 'Table Mode'
+    #     self.write(c,'I m')
+    #     self.write(c,'I e')
+    #     self.write(c,'S')
+    #     self.write(c,'M 0')
+    #
+    #     for i in range(len(freqs)-1):
+    #         self.t_add(c,0,i,freqs[i],0)
+    #         self.t_add(c,1,i,freqs[i],0)
+    #
+    #     lastNum = len(freqs)-1
+    #     self.t_last(c,0,lastNum,freqs[lastNum],0)
+    #     self.t_last(c,1,lastNum,freqs[lastNum],0)
+    #
+    #     self.write(c,'M t')
+    #     readLine = self.ser.read_line()
+    #     self.ser.flushinput()
+    #     self.ser.flushoutput()
+    #     return ''
 
 
 

@@ -40,8 +40,8 @@ class DDS( SerialDeviceServer ):
     @inlineCallbacks
     def initServer( self ):
         if not self.regKey or not self.serNode: raise SerialDeviceError( 'Must define regKey and serNode attributes' )
-        port = yield self.getPortFromReg( self.regKey )
-        #port = 'COM4'
+        #port = yield self.getPortFromReg( self.regKey )
+        port = 'COM4'
         self.port = port
         self.count = 0
         self.lastAdded = False
@@ -62,9 +62,13 @@ class DDS( SerialDeviceServer ):
     def set_freq(self, c, chan, freq):
     ##chan = 0,1,2,3 ; freq = frequency value in MHz
         """Set Frequency of output channel in MHz to nearest 0.1Hz. Maximum setting: 171.1276031MHz. Single tone mode"""
+
+        self.ser.write_line('I a')
         if freq >=  171.1276031:
             return "Set frequency " +str(freq)+ " MHz exceeds the maximum frequency of 171.1276031MHz"
         setVal = 'F' + str(chan) + ' ' + str(freq)
+
+        self.ser.read_line()
         self.ser.write_line(setVal)
         self.ser.read_line()
         readLine = self.ser.read_line()
@@ -350,12 +354,34 @@ than correct format, is performed.**incomplete**"""
         self.ser.flushoutput()
         return readLine
 
+    @setting(102, freqs='*v', returns='s')
+    def t_freqs(self, c, freqs):
+        """input frequencies as [10,20,30,40,50] MHz. The frequencies can be triggered by hardware triggers pin 10 and pin 14. Trigger 10 and then 14 afterwards."""
+        print 'Table Mode'
+        self.write(c, 'I m')
+        self.write(c, 'I e')
+        self.write(c, 'S')
+        self.write(c, 'M 0')
+
+        for i in range(len(freqs) - 1):
+            self.t_add(c, 0, i, freqs[i], 0)
+            self.t_add(c, 1, i, freqs[i], 0)
+
+        lastNum = len(freqs) - 1
+        self.t_last(c, 0, lastNum, freqs[lastNum], 0)
+        self.t_last(c, 1, lastNum, freqs[lastNum], 0)
+
+        self.write(c, 'M t')
+        readLine = self.ser.read_line()
+        self.ser.flushinput()
+        self.ser.flushoutput()
+        return ''
 
 
 
 
 
-        # def errorDecode(self,readline):
+            # def errorDecode(self,readline):
     #     if readline == 'OK': return 'Good Command'
     #     elif readline == '?0': return 'Unrecognized Command'
     #     elif readline == '?1': return "Bad Frequency"
